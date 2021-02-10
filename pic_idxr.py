@@ -23,6 +23,13 @@ class PicIdxr:
             self.c.executemany(PicIdxr.insert_statement, inserts)
             self.db.commit()
 
+    def check_duplicate(self, fn):
+        crc = PicIdxr.crc_of_file(fn)
+        c = self.db.cursor()
+        c.execute(PicIdxr.select_statement, crc)
+        res = c.fetchall()
+        return res
+
     @staticmethod
     def crc_of_file(fn):
         b = open(fn, 'rb').read()
@@ -39,6 +46,7 @@ class PicIdxr:
 
     insert_statement = "INSERT INTO pics(filename, size, crc32) VALUES(?,?,?)"
 
+    select_statement = "SELECT fn from pics WHERE crc32=?"
 
 def main():
     if len(sys.argv) > 2:
